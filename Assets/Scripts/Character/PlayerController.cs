@@ -5,8 +5,10 @@ using UnityEngine.SceneManagement;
 
 namespace Character
 {
+    // INHERITANCE - Humain
     public class PlayerController : Human
     {
+        // ENCAPSULATION - Instance du joueur
         public static PlayerController Instance { get; private set; }
         
         public string nextSpawnID;

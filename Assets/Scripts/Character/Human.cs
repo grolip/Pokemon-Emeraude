@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Character
 {
+    // ABSTRACTION - Humain Joueur comme PNJ
     public abstract class Human : MonoBehaviour
     {
         private const int Down = 0;
@@ -66,6 +67,7 @@ namespace Character
             };
         }
         
+        // POLYMORPHISM - Méthode de gestion du mouvement physique
         protected abstract void Move();
     }
 }
