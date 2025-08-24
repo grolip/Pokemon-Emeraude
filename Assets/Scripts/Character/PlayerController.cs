@@ -1,0 +1,165 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+namespace Character
+{
+    public class PlayerController : Human
+    {
+        public static PlayerController Instance { get; private set; }
+        
+        public string nextSpawnID;
+        public GameObject shadow;
+        public int currentDirection = -1;
+        
+        protected override float MoveSpeed => 3.5f;
+
+        private Vector2 _movement;
+        private SpriteRenderer _shadowSprite;
+        private SpriteRenderer _sprite;
+        private Collider2D _collider;
+        private readonly List<KeyCode> _activeKeys = new ();
+        private bool _canMove;
+        
+        private void Awake()
+        {
+            if (FindObjectsByType<PlayerController>(FindObjectsSortMode.None).Length > 1)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+            
+            animator = GetComponent<Animator>();
+            _shadowSprite = shadow.GetComponent<SpriteRenderer>();
+            _sprite = GetComponent<SpriteRenderer>();
+            _collider = GetComponent<Collider2D>();
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+        
+        private void Update()
+        {
+            // Gestion des pressions de touches
+            CheckKeyPress(KeyCode.UpArrow);
+            CheckKeyPress(KeyCode.DownArrow);
+            CheckKeyPress(KeyCode.LeftArrow);
+            CheckKeyPress(KeyCode.RightArrow);
+
+            // Si au moins une touche enfoncée
+            if (_activeKeys.Count > 0)
+            {
+                // Application de la direction.
+                currentDirection = GetDirection(_activeKeys[^1]);
+                _movement = ConvertDirectionToVector(currentDirection);
+            
+                // Gestion anim.
+                animator.SetInteger(AnimatorDirection, currentDirection);
+                animator.SetFloat(AnimatorSpeed, 1f);
+            }
+            else
+            {
+                _movement = Vector2.zero;
+                animator.SetFloat(AnimatorSpeed, 0f);
+            }
+        }
+
+        private void FixedUpdate()
+        {
+            if (!_canMove) return;
+            transform.Translate(_movement * (MoveSpeed * Time.fixedDeltaTime));
+        }
+        
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            FindSpawnPoint();
+            Appear();
+        }
+        
+        private void CheckKeyPress(KeyCode key)
+        {
+            // Gérer x touches directionnelles enfoncée en même temps.
+            if (Input.GetKeyDown(key) && !_activeKeys.Contains(key))
+                _activeKeys.Add(key);
+        
+            // Supprimer de la pile les touches relachées.
+            if (Input.GetKeyUp(key) && _activeKeys.Contains(key))
+                _activeKeys.Remove(key);
+        }
+        
+        public void FindSpawnPoint()
+        {
+            var spawnPoints = FindObjectsByType<SpawnPointData>(FindObjectsSortMode.None);
+        
+            if (spawnPoints.Length == 0) return;
+        
+            var playerSpawnPoint = spawnPoints[0];
+        
+            if (nextSpawnID.Length != 0)
+            {
+                foreach (var sp in spawnPoints)
+                {
+                    if (sp.spawnID == nextSpawnID)
+                    {
+                        playerSpawnPoint = sp;
+                        break;
+                    }
+                }
+            }
+            
+            var direction = GetDirection(playerSpawnPoint.playerOrientation);
+            animator.SetInteger(AnimatorDirection, direction);
+            transform.position = playerSpawnPoint.transform.position;
+        }
+    
+        public void Appear()
+        {
+            _sprite.enabled = true;
+            _canMove = true;
+        }
+    
+        public void Disappear()
+        {
+            _sprite.enabled = false;
+            _canMove = false;
+        }
+        
+        public IEnumerator JumpOver(float distance, float duration)
+        {
+            var direction = ConvertDirectionToVector(animator.GetInteger(AnimatorDirection));
+            var baseScale = shadow.transform.localScale;
+            var minScale = Vector3.one * 0.2f;
+            var start = (Vector2)transform.position;
+            var end = start + direction * distance;
+            var endShadow = start + direction * (distance + 0.6f);
+            var elapsed = 0f;
+            
+            _collider.enabled = false;
+            animator.SetBool(IsJumping, true);
+            _shadowSprite.enabled = true;
+            _canMove = false;
+            
+            while (elapsed < duration)
+            {
+                var timeSpent = elapsed / duration;
+                
+                shadow.transform.localScale = Vector3.Lerp(minScale, baseScale, timeSpent);
+                transform.position = Vector2.Lerp(start, end, timeSpent);
+                shadow.transform.position = endShadow;
+                
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+            
+            transform.position = end;
+            shadow.transform.localScale = baseScale;
+            _collider.enabled = true;
+            
+            animator.SetBool(IsJumping, false);
+            _shadowSprite.enabled = false;
+            _canMove = true;
+        }
+    }
+}
