@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Character
 {
-    public class Human : MonoBehaviour
+    public abstract class Human : MonoBehaviour
     {
         private const int Down = 0;
         private const int Up = 1;
@@ -18,7 +18,7 @@ namespace Character
         protected Animator animator;
         
         
-        public int GetDirection(string direction)
+        protected int GetDirection(string direction)
         {
             return direction.ToLower() switch
             {
@@ -29,7 +29,7 @@ namespace Character
             };
         }
         
-        public int GetDirection(KeyCode key)
+        protected int GetDirection(KeyCode key)
         {
             return key switch
             {
@@ -41,7 +41,7 @@ namespace Character
             };
         }
         
-        public int GetDirection(Vector3 target)
+        protected int GetDirection(Vector3 target)
         {
             var delta = target - transform.position;
             int direction;
@@ -54,7 +54,7 @@ namespace Character
             return direction;
         }
         
-        public Vector2 ConvertDirectionToVector(int dir)
+        protected Vector2 ConvertDirectionToVector(int dir)
         {
             return dir switch
             {
@@ -65,5 +65,7 @@ namespace Character
                 _ => Vector2.zero
             };
         }
+        
+        protected abstract void Move();
     }
 }

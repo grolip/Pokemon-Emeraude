@@ -20,6 +20,7 @@ namespace Character
         private SpriteRenderer _sprite;
         private Collider2D _collider;
         private readonly List<KeyCode> _activeKeys = new ();
+        private readonly List<KeyCode> _allKeys = new ();
         private bool _canMove;
         
         private void Awake()
@@ -37,17 +38,14 @@ namespace Character
             _shadowSprite = shadow.GetComponent<SpriteRenderer>();
             _sprite = GetComponent<SpriteRenderer>();
             _collider = GetComponent<Collider2D>();
+            _allKeys.AddRange(new [] { KeyCode.UpArrow, KeyCode.DownArrow, KeyCode.LeftArrow, KeyCode.RightArrow });
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
         
         private void Update()
         {
-            // Gestion des pressions de touches
-            CheckKeyPress(KeyCode.UpArrow);
-            CheckKeyPress(KeyCode.DownArrow);
-            CheckKeyPress(KeyCode.LeftArrow);
-            CheckKeyPress(KeyCode.RightArrow);
-
+            CheckKeyPress();
+            
             // Si au moins une touche enfoncée
             if (_activeKeys.Count > 0)
             {
@@ -69,6 +67,11 @@ namespace Character
         private void FixedUpdate()
         {
             if (!_canMove) return;
+            Move();
+        }
+
+        protected override void Move()
+        {
             transform.Translate(_movement * (MoveSpeed * Time.fixedDeltaTime));
         }
         
@@ -78,15 +81,18 @@ namespace Character
             Appear();
         }
         
-        private void CheckKeyPress(KeyCode key)
+        private void CheckKeyPress()
         {
-            // Gérer x touches directionnelles enfoncée en même temps.
-            if (Input.GetKeyDown(key) && !_activeKeys.Contains(key))
-                _activeKeys.Add(key);
-        
-            // Supprimer de la pile les touches relachées.
-            if (Input.GetKeyUp(key) && _activeKeys.Contains(key))
-                _activeKeys.Remove(key);
+            foreach (var key in _allKeys)
+            {
+                // Gérer x touches directionnelles enfoncée en même temps.
+                if (Input.GetKeyDown(key) && !_activeKeys.Contains(key))
+                    _activeKeys.Add(key);
+
+                // Supprimer de la pile les touches relachées.
+                if (Input.GetKeyUp(key) && _activeKeys.Contains(key))
+                    _activeKeys.Remove(key);
+            }
         }
         
         public void FindSpawnPoint()
@@ -160,6 +166,11 @@ namespace Character
             animator.SetBool(IsJumping, false);
             _shadowSprite.enabled = false;
             _canMove = true;
+        }
+
+        public bool HaveSameDirection(string direction)
+        {
+            return currentDirection == GetDirection(direction);
         }
     }
 }

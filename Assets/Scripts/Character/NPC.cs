@@ -54,8 +54,7 @@ namespace Character
         {
             if (_currentState != State.Walking) return;
             
-            var movement = Vector2.MoveTowards(_rb.position, _target, MoveSpeed * Time.deltaTime);
-            _rb.MovePosition(movement);
+            Move();
 
             var distanceFromTarget = Vector2.Distance(transform.position, _target);
 
@@ -87,6 +86,12 @@ namespace Character
 
             if (isStatic) StartCoroutine(ReturnToInitialDirection());
             else StartCoroutine(Wait(MinStopDuration));
+        }
+
+        protected override void Move()
+        {
+            var movement = Vector2.MoveTowards(_rb.position, _target, MoveSpeed * Time.deltaTime);
+            _rb.MovePosition(movement);
         }
         
         private void Stop()
