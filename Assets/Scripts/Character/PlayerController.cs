@@ -15,15 +15,12 @@ namespace Character
         public GameObject shadow;
         public int currentDirection = -1;
         
-        protected override float MoveSpeed => 3.5f;
-
         private Vector2 _movement;
         private SpriteRenderer _shadowSprite;
         private SpriteRenderer _sprite;
         private Collider2D _collider;
         private readonly List<KeyCode> _activeKeys = new ();
         private readonly List<KeyCode> _allKeys = new ();
-        private bool _canMove;
         
         private void Awake()
         {
@@ -35,8 +32,12 @@ namespace Character
             
             Instance = this;
             DontDestroyOnLoad(gameObject);
+        }
+
+        private new void Start()
+        {
+            base.Start();
             
-            animator = GetComponent<Animator>();
             _shadowSprite = shadow.GetComponent<SpriteRenderer>();
             _sprite = GetComponent<SpriteRenderer>();
             _collider = GetComponent<Collider2D>();
@@ -58,17 +59,19 @@ namespace Character
                 // Gestion anim.
                 animator.SetInteger(AnimatorDirection, currentDirection);
                 animator.SetFloat(AnimatorSpeed, 1f);
+                currentState = State.Walking;
             }
             else
             {
                 _movement = Vector2.zero;
                 animator.SetFloat(AnimatorSpeed, 0f);
+                currentState = State.Waiting;
             }
         }
 
         private void FixedUpdate()
         {
-            if (!_canMove) return;
+            if (currentState is not (State.Waiting or State.Walking)) return;
             Move();
         }
 
@@ -125,13 +128,13 @@ namespace Character
         public void Appear()
         {
             _sprite.enabled = true;
-            _canMove = true;
+            currentState = State.Waiting;
         }
     
         public void Disappear()
         {
             _sprite.enabled = false;
-            _canMove = false;
+            currentState = State.Busy;
         }
         
         public IEnumerator JumpOver(float distance, float duration)
@@ -145,9 +148,9 @@ namespace Character
             var elapsed = 0f;
             
             _collider.enabled = false;
-            animator.SetBool(IsJumping, true);
             _shadowSprite.enabled = true;
-            _canMove = false;
+            animator.SetBool(IsJumping, true);
+            currentState = State.Busy;
             
             while (elapsed < duration)
             {
@@ -163,11 +166,11 @@ namespace Character
             
             transform.position = end;
             shadow.transform.localScale = baseScale;
-            _collider.enabled = true;
             
-            animator.SetBool(IsJumping, false);
+            _collider.enabled = true;
             _shadowSprite.enabled = false;
-            _canMove = true;
+            animator.SetBool(IsJumping, false);
+            currentState = State.Waiting;
         }
 
         public bool HaveSameDirection(string direction)

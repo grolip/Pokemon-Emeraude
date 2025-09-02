@@ -5,6 +5,13 @@ namespace Character
     // ABSTRACTION - Humain Joueur comme PNJ
     public abstract class Human : MonoBehaviour
     {
+        public enum State
+        {
+            Walking,
+            Busy,
+            Waiting
+        }
+        
         private const int Down = 0;
         private const int Up = 1;
         private const int Left = 2;
@@ -15,9 +22,14 @@ namespace Character
         protected static readonly int AnimatorDirection = Animator.StringToHash("direction");
         protected static readonly int IsJumping = Animator.StringToHash("isJumping");
         
-        protected virtual float MoveSpeed { get; set; } = 3.5f;
+        protected virtual float MoveSpeed => 3.5f;
         protected Animator animator;
-        
+        protected State currentState;
+
+        protected void Start()
+        {
+            animator = GetComponent<Animator>();
+        }
         
         protected int GetDirection(string direction)
         {

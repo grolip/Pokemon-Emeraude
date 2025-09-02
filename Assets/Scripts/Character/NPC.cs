@@ -7,15 +7,7 @@ namespace Character
     public class NPC : Human
     {
         public GameObject way;
-        public bool isStatic;
         protected override float MoveSpeed => 2f;
-        
-        private enum State
-        {
-            Walking,
-            Talking,
-            Waiting
-        }
         
         private const float MinDistanceFromTarget = 0.05f;
         private const float MinStopDuration = 1f;
@@ -26,33 +18,39 @@ namespace Character
         private int _currentIndex;
         private Vector2 _target;
         private bool _playerInteraction;
-        private State _currentState;
         private int _initialDirection;
 
-        private void Start()
+        private bool IsStatic => way == null;
+        
+        private new void Start()
         {
+            base.Start();
+            
             _rb = GetComponent<Rigidbody2D>();
-            animator = GetComponent<Animator>();
             _wayPoints = new List<Vector2>();
             _initialDirection = animator.GetInteger(AnimatorDirection);
             
-            if (!isStatic)
+            if (!IsStatic)
             {
+                // Récupération de la position des points de passage.
                 foreach (Transform child in way.transform)
                     _wayPoints.Add(child.position);
-
+                
+                // Choix du point d'entrée 
                 ChooseRandomStartPoint();
-                _currentState = State.Walking;
+                
+                // Début de la marche
+                currentState = State.Walking;
             }
             else
             {
-                _currentState = State.Waiting;
+                currentState = State.Waiting;
             }
         }
 
         private void FixedUpdate()
         {
-            if (_currentState != State.Walking) return;
+            if (currentState != State.Walking) return;
             
             Move();
 
@@ -84,7 +82,7 @@ namespace Character
         
             StopAllCoroutines();
 
-            if (isStatic) StartCoroutine(ReturnToInitialDirection());
+            if (IsStatic) StartCoroutine(ReturnToInitialDirection());
             else StartCoroutine(Wait(MinStopDuration));
         }
 
@@ -96,7 +94,7 @@ namespace Character
         
         private void Stop()
         {
-            _currentState = State.Waiting;
+            currentState = State.Waiting;
             animator.SetFloat(AnimatorSpeed, 0f);
         }
 
@@ -107,19 +105,19 @@ namespace Character
             Stop();
             yield return new WaitForSeconds(t);
 
-            if (_currentState != State.Talking)
+            if (currentState != State.Busy)
                 Walk();
         }
 
         private void Talk()
         {
-            _currentState = State.Talking;
+            currentState = State.Busy;
             animator.SetFloat(AnimatorSpeed, 0f);
         }
 
         private void Walk()
         {
-            _currentState = State.Walking;
+            currentState = State.Walking;
             animator.SetFloat(AnimatorSpeed, 1f);
             
             var newDirection = GetDirection(_target);
@@ -146,7 +144,7 @@ namespace Character
         {
             yield return new WaitForSeconds(MinStopDuration);
             
-            _currentState = State.Waiting;
+            currentState = State.Waiting;
             animator.SetInteger(AnimatorDirection, _initialDirection);
         }
         
