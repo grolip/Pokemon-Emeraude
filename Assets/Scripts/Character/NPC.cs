@@ -26,7 +26,7 @@ namespace Character
             base.Start();
             
             _wayPoints = new List<Vector2>();
-            _initialDirection = animator.GetInteger(AnimatorDirection);
+            _initialDirection = currentDirection;
             
             if (!IsStatic)
             {
@@ -37,6 +37,7 @@ namespace Character
                 // Choix du point d'entrée 
                 Spawn();
                 UpdateNextPoint();
+                UpdateDirection(GetDirection(_target));
                 Walk();
             }
         }
@@ -93,7 +94,10 @@ namespace Character
             yield return new WaitForSeconds(t);
 
             if (currentState != State.Busy)
+            {
+                UpdateDirection(GetDirection(_target));
                 Walk();
+            }
         }
 
         private void Talk()
@@ -108,7 +112,6 @@ namespace Character
             else _currentIndex++;
             
             _target = _wayPoints[_currentIndex];
-            currentDirection = GetDirection(_target);
         }
         
         private Vector2 GetRandomStartPoint()
@@ -121,14 +124,12 @@ namespace Character
             yield return new WaitForSeconds(MinStopDuration);
             
             currentState = State.Waiting;
-            animator.SetInteger(AnimatorDirection, _initialDirection);
+            UpdateDirection(_initialDirection);
         }
         
         private void LookAt(GameObject target)
         {
-            var nextDirection = GetDirection(target.transform.position);
-            
-            animator.SetInteger(AnimatorDirection, nextDirection);
+            UpdateDirection(GetDirection(target.transform.position));
         }
     }
 }

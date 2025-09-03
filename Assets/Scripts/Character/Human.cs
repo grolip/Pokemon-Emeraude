@@ -18,21 +18,22 @@ namespace Character
         private const int Right = 3;
         private const int None = -1;
         
+        private Vector2 _movement;
+        
         protected static readonly int AnimatorSpeed = Animator.StringToHash("speed");
         protected static readonly int AnimatorDirection = Animator.StringToHash("direction");
         protected static readonly int IsJumping = Animator.StringToHash("isJumping");
         
         protected virtual float MoveSpeed => 3.5f;
         protected int currentDirection;
-        protected Vector2 movement;
         protected Animator animator;
         protected State currentState;
 
         protected void Start()
         {
-            currentDirection = Down;
             animator = GetComponent<Animator>();
-            movement = Vector2.zero;
+            currentDirection = animator.GetInteger(AnimatorDirection);
+            _movement = Vector2.zero;
             currentState = State.Waiting;
         }
         
@@ -87,16 +88,15 @@ namespace Character
         // POLYMORPHISM - Méthode de gestion du mouvement physique
         protected void Move()
         {
-            transform.Translate(movement * (MoveSpeed * Time.fixedDeltaTime));
+            transform.Translate(_movement * (MoveSpeed * Time.fixedDeltaTime));
         }
 
         protected void Walk()
         {
-            animator.SetInteger(AnimatorDirection, currentDirection);
             animator.SetFloat(AnimatorSpeed, 1f);
             
             currentState = State.Walking;
-            movement = ConvertDirectionToVector(currentDirection);
+            _movement = ConvertDirectionToVector(currentDirection);
         }
         
         protected void Stop()
@@ -104,13 +104,19 @@ namespace Character
             animator.SetFloat(AnimatorSpeed, 0f);
             
             currentState = State.Waiting;
-            movement = Vector2.zero;
+            _movement = Vector2.zero;
         }
 
         protected void Spawn(Vector2 position)
         {
             animator.SetInteger(AnimatorDirection, currentDirection);
             transform.position = position;
+        }
+
+        protected void UpdateDirection(int direction)
+        {
+            currentDirection = direction;
+            animator.SetInteger(AnimatorDirection, currentDirection);
         }
     }
 }

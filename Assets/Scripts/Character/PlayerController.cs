@@ -51,7 +51,9 @@ namespace Character
             // Si au moins une touche enfoncée
             if (_activeKeys.Count > 0)
             {
-                currentDirection = GetDirection(_activeKeys[^1]);
+                var newDirection = GetDirection(_activeKeys[^1]);
+                
+                if (currentDirection != newDirection) UpdateDirection(newDirection);
                 Walk();
             }
             else
@@ -114,7 +116,7 @@ namespace Character
             
             if (spawnPoint)
             {
-                currentDirection = GetDirection(spawnPoint.playerOrientation);
+                UpdateDirection(GetDirection(spawnPoint.playerOrientation));
                 base.Spawn(spawnPoint.transform.position);
             }
         }
