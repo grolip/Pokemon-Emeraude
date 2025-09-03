@@ -23,12 +23,16 @@ namespace Character
         protected static readonly int IsJumping = Animator.StringToHash("isJumping");
         
         protected virtual float MoveSpeed => 3.5f;
+        protected int currentDirection;
+        protected Vector2 movement;
         protected Animator animator;
         protected State currentState;
 
         protected void Start()
         {
             animator = GetComponent<Animator>();
+            movement = Vector2.zero;
+            currentState = State.Waiting;
         }
         
         protected int GetDirection(string direction)
@@ -80,6 +84,26 @@ namespace Character
         }
         
         // POLYMORPHISM - Méthode de gestion du mouvement physique
-        protected abstract void Move();
+        protected void Move()
+        {
+            transform.Translate(movement * (MoveSpeed * Time.fixedDeltaTime));
+        }
+
+        protected void Walk()
+        {
+            animator.SetInteger(AnimatorDirection, currentDirection);
+            animator.SetFloat(AnimatorSpeed, 1f);
+            
+            currentState = State.Walking;
+            movement = ConvertDirectionToVector(currentDirection);
+        }
+        
+        protected void Stop()
+        {
+            animator.SetFloat(AnimatorSpeed, 0f);
+            
+            currentState = State.Waiting;
+            movement = Vector2.zero;
+        }
     }
 }

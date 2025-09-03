@@ -13,9 +13,7 @@ namespace Character
         
         public string nextSpawnID;
         public GameObject shadow;
-        public int currentDirection = -1;
         
-        private Vector2 _movement;
         private SpriteRenderer _shadowSprite;
         private SpriteRenderer _sprite;
         private Collider2D _collider;
@@ -52,32 +50,19 @@ namespace Character
             // Si au moins une touche enfoncée
             if (_activeKeys.Count > 0)
             {
-                // Application de la direction.
                 currentDirection = GetDirection(_activeKeys[^1]);
-                _movement = ConvertDirectionToVector(currentDirection);
-            
-                // Gestion anim.
-                animator.SetInteger(AnimatorDirection, currentDirection);
-                animator.SetFloat(AnimatorSpeed, 1f);
-                currentState = State.Walking;
+                Walk();
             }
             else
             {
-                _movement = Vector2.zero;
-                animator.SetFloat(AnimatorSpeed, 0f);
-                currentState = State.Waiting;
+                Stop();
             }
         }
 
         private void FixedUpdate()
         {
-            if (currentState is not (State.Waiting or State.Walking)) return;
+            if (currentState == State.Busy) return;
             Move();
-        }
-
-        protected override void Move()
-        {
-            transform.Translate(_movement * (MoveSpeed * Time.fixedDeltaTime));
         }
         
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)

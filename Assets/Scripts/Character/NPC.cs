@@ -38,13 +38,8 @@ namespace Character
                 
                 // Choix du point d'entrée 
                 ChooseRandomStartPoint();
-                
-                // Début de la marche
-                currentState = State.Walking;
-            }
-            else
-            {
-                currentState = State.Waiting;
+                NextWaypoint();
+                Walk();
             }
         }
 
@@ -56,10 +51,11 @@ namespace Character
 
             var distanceFromTarget = Vector2.Distance(transform.position, _target);
 
-            if (!(distanceFromTarget < MinDistanceFromTarget)) return;
-            
-            StartCoroutine(Wait());
-            NextWaypoint();
+            if (distanceFromTarget < MinDistanceFromTarget)
+            {
+                StartCoroutine(Wait());
+                NextWaypoint();
+            }
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -85,19 +81,7 @@ namespace Character
             if (IsStatic) StartCoroutine(ReturnToInitialDirection());
             else StartCoroutine(Wait(MinStopDuration));
         }
-
-        protected override void Move()
-        {
-            var movement = Vector2.MoveTowards(_rb.position, _target, MoveSpeed * Time.deltaTime);
-            _rb.MovePosition(movement);
-        }
         
-        private void Stop()
-        {
-            currentState = State.Waiting;
-            animator.SetFloat(AnimatorSpeed, 0f);
-        }
-
         private IEnumerator Wait(float delay = 0)
         {
             var t = delay <= 0 ? Random.Range(MinStopDuration, MaxStopDuration + 1) : delay;
@@ -114,23 +98,14 @@ namespace Character
             currentState = State.Busy;
             animator.SetFloat(AnimatorSpeed, 0f);
         }
-
-        private void Walk()
-        {
-            currentState = State.Walking;
-            animator.SetFloat(AnimatorSpeed, 1f);
-            
-            var newDirection = GetDirection(_target);
-            animator.SetInteger(AnimatorDirection, newDirection);
-        }
-
+        
         private void NextWaypoint()
         {
-            if (_currentIndex == _wayPoints.Count - 1)
-                _currentIndex = 0;
-            else
-                _currentIndex++;
+            if (_currentIndex == _wayPoints.Count - 1) _currentIndex = 0;
+            else _currentIndex++;
+            
             _target = _wayPoints[_currentIndex];
+            currentDirection = GetDirection(_target);
         }
         
         private void ChooseRandomStartPoint()
