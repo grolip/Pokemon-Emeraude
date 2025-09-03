@@ -29,10 +29,12 @@ namespace Gateway
             
             playerController.nextSpawnID = nextSpawnID;
             playerController.Disappear();
+            
             yield return StartCoroutine(_fader.FadeOut(0.3f));
             
-            playerController.FindSpawnPoint();
+            playerController.Spawn();
             playerController.Appear();
+            
             yield return StartCoroutine(_fader.FadeIn(0.3f,true));
         }
     }

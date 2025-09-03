@@ -13,7 +13,6 @@ namespace Character
         private const float MinStopDuration = 1f;
         private const float MaxStopDuration = 4f;
         
-        private Rigidbody2D _rb;
         private List<Vector2> _wayPoints;
         private int _currentIndex;
         private Vector2 _target;
@@ -26,7 +25,6 @@ namespace Character
         {
             base.Start();
             
-            _rb = GetComponent<Rigidbody2D>();
             _wayPoints = new List<Vector2>();
             _initialDirection = animator.GetInteger(AnimatorDirection);
             
@@ -37,8 +35,8 @@ namespace Character
                     _wayPoints.Add(child.position);
                 
                 // Choix du point d'entrée 
-                ChooseRandomStartPoint();
-                NextWaypoint();
+                Spawn();
+                UpdateNextPoint();
                 Walk();
             }
         }
@@ -54,7 +52,7 @@ namespace Character
             if (distanceFromTarget < MinDistanceFromTarget)
             {
                 StartCoroutine(Wait());
-                NextWaypoint();
+                UpdateNextPoint();
             }
         }
 
@@ -81,6 +79,11 @@ namespace Character
             if (IsStatic) StartCoroutine(ReturnToInitialDirection());
             else StartCoroutine(Wait(MinStopDuration));
         }
+
+        private void Spawn()
+        {
+            base.Spawn(GetRandomStartPoint());
+        }
         
         private IEnumerator Wait(float delay = 0)
         {
@@ -99,7 +102,7 @@ namespace Character
             animator.SetFloat(AnimatorSpeed, 0f);
         }
         
-        private void NextWaypoint()
+        private void UpdateNextPoint()
         {
             if (_currentIndex == _wayPoints.Count - 1) _currentIndex = 0;
             else _currentIndex++;
@@ -108,11 +111,9 @@ namespace Character
             currentDirection = GetDirection(_target);
         }
         
-        private void ChooseRandomStartPoint()
+        private Vector2 GetRandomStartPoint()
         {
-            _currentIndex = Random.Range(0, _wayPoints.Count);
-            _target = _wayPoints[_currentIndex];
-            transform.position = _target;
+            return _wayPoints[Random.Range(0, _wayPoints.Count)];
         }
         
         private IEnumerator ReturnToInitialDirection()

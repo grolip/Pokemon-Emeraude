@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -54,9 +55,7 @@ namespace Character
                 Walk();
             }
             else
-            {
                 Stop();
-            }
         }
 
         private void FixedUpdate()
@@ -67,7 +66,7 @@ namespace Character
         
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            FindSpawnPoint();
+            Spawn();
             Appear();
         }
         
@@ -85,11 +84,12 @@ namespace Character
             }
         }
         
-        public void FindSpawnPoint()
+        [CanBeNull]
+        private SpawnPointData GetSpawnPoint()
         {
             var spawnPoints = FindObjectsByType<SpawnPointData>(FindObjectsSortMode.None);
         
-            if (spawnPoints.Length == 0) return;
+            if (spawnPoints.Length == 0) return null;
         
             var playerSpawnPoint = spawnPoints[0];
         
@@ -105,11 +105,20 @@ namespace Character
                 }
             }
             
-            var direction = GetDirection(playerSpawnPoint.playerOrientation);
-            animator.SetInteger(AnimatorDirection, direction);
-            transform.position = playerSpawnPoint.transform.position;
+            return playerSpawnPoint;
         }
-    
+        
+        public void Spawn()
+        {
+            var spawnPoint = GetSpawnPoint();
+            
+            if (spawnPoint)
+            {
+                currentDirection = GetDirection(spawnPoint.playerOrientation);
+                base.Spawn(spawnPoint.transform.position);
+            }
+        }
+        
         public void Appear()
         {
             _sprite.enabled = true;

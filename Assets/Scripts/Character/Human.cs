@@ -30,6 +30,7 @@ namespace Character
 
         protected void Start()
         {
+            currentDirection = Down;
             animator = GetComponent<Animator>();
             movement = Vector2.zero;
             currentState = State.Waiting;
@@ -104,6 +105,12 @@ namespace Character
             
             currentState = State.Waiting;
             movement = Vector2.zero;
+        }
+
+        protected void Spawn(Vector2 position)
+        {
+            animator.SetInteger(AnimatorDirection, currentDirection);
+            transform.position = position;
         }
     }
 }
