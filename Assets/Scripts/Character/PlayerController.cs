@@ -48,13 +48,15 @@ namespace Character
         {
             CheckKeyPress();
             
+            if (currentState == State.Busy) return;
+            
             // Si au moins une touche enfoncée
             if (_activeKeys.Count > 0)
             {
                 var newDirection = GetDirection(_activeKeys[^1]);
                 
                 if (currentDirection != newDirection) UpdateDirection(newDirection);
-                Walk();
+                if (currentState != State.Walking) Walk();
             }
             else
                 Stop();
@@ -62,7 +64,7 @@ namespace Character
 
         private void FixedUpdate()
         {
-            if (currentState == State.Busy) return;
+            if (currentState != State.Walking) return;
             Move();
         }
         

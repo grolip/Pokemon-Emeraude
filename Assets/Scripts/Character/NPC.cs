@@ -47,10 +47,8 @@ namespace Character
             if (currentState != State.Walking) return;
             
             Move();
-
-            var distanceFromTarget = Vector2.Distance(transform.position, _target);
-
-            if (distanceFromTarget < MinDistanceFromTarget)
+            
+            if (Vector2.Distance(transform.position, _target) < MinDistanceFromTarget)
             {
                 StartCoroutine(Wait());
                 UpdateNextPoint();
@@ -116,7 +114,8 @@ namespace Character
         
         private Vector2 GetRandomStartPoint()
         {
-            return _wayPoints[Random.Range(0, _wayPoints.Count)];
+            _currentIndex = Random.Range(0, _wayPoints.Count);
+            return _wayPoints[_currentIndex];
         }
         
         private IEnumerator ReturnToInitialDirection()

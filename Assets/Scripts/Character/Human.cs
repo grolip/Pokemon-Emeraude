@@ -5,24 +5,21 @@ namespace Character
     // ABSTRACTION - Humain Joueur comme PNJ
     public abstract class Human : MonoBehaviour
     {
-        public enum State
-        {
-            Walking,
-            Busy,
-            Waiting
-        }
-        
         private const int Down = 0;
         private const int Up = 1;
         private const int Left = 2;
         private const int Right = 3;
         private const int None = -1;
         
-        private Vector2 _movement;
-        
         protected static readonly int AnimatorSpeed = Animator.StringToHash("speed");
         protected static readonly int AnimatorDirection = Animator.StringToHash("direction");
         protected static readonly int IsJumping = Animator.StringToHash("isJumping");
+        protected enum State
+        {
+            Walking,
+            Busy,
+            Waiting
+        }
         
         protected virtual float MoveSpeed => 3.5f;
         protected int currentDirection;
@@ -33,7 +30,6 @@ namespace Character
         {
             animator = GetComponent<Animator>();
             currentDirection = animator.GetInteger(AnimatorDirection);
-            _movement = Vector2.zero;
             currentState = State.Waiting;
         }
         
@@ -88,7 +84,8 @@ namespace Character
         // POLYMORPHISM - Méthode de gestion du mouvement physique
         protected void Move()
         {
-            transform.Translate(_movement * (MoveSpeed * Time.fixedDeltaTime));
+            var movement = ConvertDirectionToVector(currentDirection);
+            transform.Translate(movement * (MoveSpeed * Time.fixedDeltaTime));
         }
 
         protected void Walk()
@@ -96,15 +93,12 @@ namespace Character
             animator.SetFloat(AnimatorSpeed, 1f);
             
             currentState = State.Walking;
-            _movement = ConvertDirectionToVector(currentDirection);
         }
         
         protected void Stop()
         {
             animator.SetFloat(AnimatorSpeed, 0f);
-            
             currentState = State.Waiting;
-            _movement = Vector2.zero;
         }
 
         protected void Spawn(Vector2 position)
