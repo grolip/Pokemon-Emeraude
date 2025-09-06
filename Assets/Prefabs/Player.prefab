@@ -318,6 +318,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de50b0ae55fdbec4ebcfd17c8c37616e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shadow: {fileID: 930413522857737335}
   nextSpawnID: 
-  shadow: {fileID: 0}
-  currentDirection: -1

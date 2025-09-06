@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -11,13 +10,9 @@ namespace Character
     {
         // ENCAPSULATION - Instance du joueur
         public static PlayerController Instance { get; private set; }
-        
         public string nextSpawnID;
-        public GameObject shadow;
         
-        private SpriteRenderer _shadowSprite;
         private SpriteRenderer _sprite;
-        private Collider2D _collider;
         private readonly List<KeyCode> _activeKeys = new ();
         private readonly List<KeyCode> _allKeys = new ();
         
@@ -37,9 +32,7 @@ namespace Character
         {
             base.Start();
             
-            _shadowSprite = shadow.GetComponent<SpriteRenderer>();
             _sprite = GetComponent<SpriteRenderer>();
-            _collider = GetComponent<Collider2D>();
             _allKeys.AddRange(new [] { KeyCode.UpArrow, KeyCode.DownArrow, KeyCode.LeftArrow, KeyCode.RightArrow });
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
@@ -135,42 +128,6 @@ namespace Character
             currentState = State.Busy;
         }
         
-        public IEnumerator JumpOver(float distance, float duration)
-        {
-            var direction = ConvertDirectionToVector(animator.GetInteger(AnimatorDirection));
-            var baseScale = shadow.transform.localScale;
-            var minScale = Vector3.one * 0.2f;
-            var start = (Vector2)transform.position;
-            var end = start + direction * distance;
-            var endShadow = start + direction * (distance + 0.6f);
-            var elapsed = 0f;
-            
-            _collider.enabled = false;
-            _shadowSprite.enabled = true;
-            animator.SetBool(IsJumping, true);
-            currentState = State.Busy;
-            
-            while (elapsed < duration)
-            {
-                var timeSpent = elapsed / duration;
-                
-                shadow.transform.localScale = Vector3.Lerp(minScale, baseScale, timeSpent);
-                transform.position = Vector2.Lerp(start, end, timeSpent);
-                shadow.transform.position = endShadow;
-                
-                elapsed += Time.deltaTime;
-                yield return null;
-            }
-            
-            transform.position = end;
-            shadow.transform.localScale = baseScale;
-            
-            _collider.enabled = true;
-            _shadowSprite.enabled = false;
-            animator.SetBool(IsJumping, false);
-            currentState = State.Waiting;
-        }
-
         public bool HaveSameDirection(string direction)
         {
             return currentDirection == GetDirection(direction);

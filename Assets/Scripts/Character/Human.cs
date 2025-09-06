@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace Character
@@ -5,32 +6,38 @@ namespace Character
     // ABSTRACTION - Humain Joueur comme PNJ
     public abstract class Human : MonoBehaviour
     {
+        public GameObject shadow;
+        
         private const int Down = 0;
         private const int Up = 1;
         private const int Left = 2;
         private const int Right = 3;
         private const int None = -1;
+        private static readonly int AnimatorSpeed = Animator.StringToHash("speed");
+        private static readonly int AnimatorDirection = Animator.StringToHash("direction");
+        private static readonly int IsJumping = Animator.StringToHash("isJumping");
+        private Animator _animator;
+        private SpriteRenderer _shadowSprite;
+        private Collider2D _collider;
         
-        protected static readonly int AnimatorSpeed = Animator.StringToHash("speed");
-        protected static readonly int AnimatorDirection = Animator.StringToHash("direction");
-        protected static readonly int IsJumping = Animator.StringToHash("isJumping");
         protected enum State
         {
             Walking,
             Busy,
             Waiting
         }
-        
         protected virtual float MoveSpeed => 3.5f;
         protected int currentDirection;
-        protected Animator animator;
         protected State currentState;
-
+        
         protected void Start()
         {
-            animator = GetComponent<Animator>();
-            currentDirection = animator.GetInteger(AnimatorDirection);
+            _animator = GetComponent<Animator>();
+            currentDirection = _animator.GetInteger(AnimatorDirection);
             currentState = State.Waiting;
+            
+            _shadowSprite = shadow.GetComponent<SpriteRenderer>();
+            _collider = GetComponent<Collider2D>();
         }
         
         protected int GetDirection(string direction)
@@ -68,8 +75,8 @@ namespace Character
 
             return direction;
         }
-        
-        protected Vector2 ConvertDirectionToVector(int dir)
+
+        private Vector2 ConvertDirectionToVector(int dir)
         {
             return dir switch
             {
@@ -90,32 +97,79 @@ namespace Character
 
         protected void Walk()
         {
-            animator.SetFloat(AnimatorSpeed, 1f);
+            _animator.SetFloat(AnimatorSpeed, 1f);
             currentState = State.Walking;
         }
         
         public void Talk()
         {
-            animator.SetFloat(AnimatorSpeed, 0f);
+            _animator.SetFloat(AnimatorSpeed, 0f);
             currentState = State.Busy;
         }
         
         public void Stop()
         {
-            animator.SetFloat(AnimatorSpeed, 0f);
+            _animator.SetFloat(AnimatorSpeed, 0f);
             currentState = State.Waiting;
         }
 
         protected void Spawn(Vector2 position)
         {
-            animator.SetInteger(AnimatorDirection, currentDirection);
+            _animator.SetInteger(AnimatorDirection, currentDirection);
             transform.position = position;
         }
 
+        private void Jump()
+        {
+            _collider.enabled = false;
+            _shadowSprite.enabled = true;
+            _animator.SetBool(IsJumping, true);
+            currentState = State.Busy;
+        }
+
+        private void Land()
+        {
+            _collider.enabled = true;
+            _shadowSprite.enabled = false;
+            _animator.SetBool(IsJumping, false);
+            
+            Stop();
+        }
+        
         protected void UpdateDirection(int direction)
         {
             currentDirection = direction;
-            animator.SetInteger(AnimatorDirection, currentDirection);
+            _animator.SetInteger(AnimatorDirection, currentDirection);
+        }
+        
+        public IEnumerator JumpOver(float distance, float duration)
+        {
+            var direction = ConvertDirectionToVector(_animator.GetInteger(AnimatorDirection));
+            var baseScale = shadow.transform.localScale;
+            var minScale = Vector3.one * 0.2f;
+            var start = (Vector2)transform.position;
+            var end = start + direction * distance;
+            var endShadow = start + direction * (distance + 0.6f);
+            var elapsed = 0f;
+            
+            Jump();
+            
+            while (elapsed < duration)
+            {
+                var timeSpent = elapsed / duration;
+                
+                shadow.transform.localScale = Vector3.Lerp(minScale, baseScale, timeSpent);
+                transform.position = Vector2.Lerp(start, end, timeSpent);
+                shadow.transform.position = endShadow;
+                
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+            
+            transform.position = end;
+            shadow.transform.localScale = baseScale;
+            
+            Land();
         }
     }
 }
