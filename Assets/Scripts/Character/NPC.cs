@@ -97,12 +97,6 @@ namespace Character
                 Walk();
             }
         }
-
-        private void Talk()
-        {
-            currentState = State.Busy;
-            animator.SetFloat(AnimatorSpeed, 0f);
-        }
         
         private void UpdateNextPoint()
         {

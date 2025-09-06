@@ -2831,6 +2831,11 @@ Transform:
   - {fileID: 375572371436033285}
   m_Father: {fileID: 1912807223}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1024181095 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6936153437279135806, guid: 7284cfaef172066498f7a89c4e2a6cd1, type: 3}
+  m_PrefabInstance: {fileID: 1536500157}
+  m_PrefabAsset: {fileID: 0}
 --- !u!225 &1091244551 stripped
 CanvasGroup:
   m_CorrespondingSourceObject: {fileID: 2545824020991151471, guid: 101c72ee9ffffee40adab8352d104cd7, type: 3}
@@ -31432,13 +31437,29 @@ PrefabInstance:
     - {fileID: 5564959604895768745, guid: 7284cfaef172066498f7a89c4e2a6cd1, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6936153437279135806, guid: 7284cfaef172066498f7a89c4e2a6cd1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1536500167}
   m_SourcePrefab: {fileID: 100100000, guid: 7284cfaef172066498f7a89c4e2a6cd1, type: 3}
 --- !u!4 &1536500158 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8519824728632136040, guid: 7284cfaef172066498f7a89c4e2a6cd1, type: 3}
   m_PrefabInstance: {fileID: 1536500157}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1536500167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1024181095}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed29320021218ae429c07ab512d31cad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fileName: NPC/Jean/speech.txt
 --- !u!1001 &1625425871
 PrefabInstance:
   m_ObjectHideFlags: 0

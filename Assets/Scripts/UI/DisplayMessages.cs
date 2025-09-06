@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Character;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -52,6 +53,8 @@ namespace UI
         
             hasNextMsg = _currentIndexMsg < _messages.Count;
             textBox.gameObject.SetActive(true);
+            
+            PlayerController.Instance.Talk();
         }
 
         public void NextDialog()
@@ -70,6 +73,8 @@ namespace UI
             StopCoroutine(WriteText());
             textBox.gameObject.SetActive(false);
             currentUser = 0;
+            
+            PlayerController.Instance.Stop();
         }
     
         private IEnumerator WriteText()

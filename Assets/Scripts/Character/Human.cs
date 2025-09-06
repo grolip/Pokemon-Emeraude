@@ -91,11 +91,16 @@ namespace Character
         protected void Walk()
         {
             animator.SetFloat(AnimatorSpeed, 1f);
-            
             currentState = State.Walking;
         }
         
-        protected void Stop()
+        public void Talk()
+        {
+            animator.SetFloat(AnimatorSpeed, 0f);
+            currentState = State.Busy;
+        }
+        
+        public void Stop()
         {
             animator.SetFloat(AnimatorSpeed, 0f);
             currentState = State.Waiting;
