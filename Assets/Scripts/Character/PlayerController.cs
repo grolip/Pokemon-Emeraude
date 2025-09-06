@@ -58,7 +58,7 @@ namespace Character
                 if (currentDirection != newDirection) UpdateDirection(newDirection);
                 if (currentState != State.Walking) Walk();
             }
-            else
+            else if (currentState != State.Waiting)
                 Stop();
         }
 
