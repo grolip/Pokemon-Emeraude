@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using UI;
 using UnityEngine;
 
 public class SendMessages : MonoBehaviour
@@ -12,12 +13,14 @@ public class SendMessages : MonoBehaviour
     private int _senderID;
     private List<string> _messages;
     private DisplayMessages _displayMessages;
+    private int[] _idAllowed;
     private bool _inReadingZone;
     private bool _dialogOpened;
 
     void Start()
     {
         _senderID = gameObject.GetInstanceID();
+        _idAllowed = new[] { 0, _senderID };
         _messages = ReadFile(Application.dataPath + "/Resources/Dialogs/" + fileName);
         _displayMessages = FindFirstObjectByType<DisplayMessages>();
     }
@@ -41,7 +44,9 @@ public class SendMessages : MonoBehaviour
     
     private void OnMouseDown()
     {
-        if (!new[]{0, _senderID}.Contains(_displayMessages.currentUser))
+        // On vérifie qu'il n'y ai pas de dialog ouvert avec une autre entité
+        // ou bien que le dialogue se fait avec l'entité courante.
+        if (!_idAllowed.Contains(_displayMessages.currentUser))
             return;
         
         if (_inReadingZone && !_displayMessages.inReadingMode)

@@ -575,7 +575,10 @@ PrefabInstance:
     - {fileID: 5564959604895768745, guid: 7284cfaef172066498f7a89c4e2a6cd1, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6936153437279135806, guid: 7284cfaef172066498f7a89c4e2a6cd1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 556578548}
   m_SourcePrefab: {fileID: 100100000, guid: 7284cfaef172066498f7a89c4e2a6cd1, type: 3}
 --- !u!4 &379740285 stripped
 Transform:
@@ -906,6 +909,24 @@ Transform:
   - {fileID: 283107595}
   m_Father: {fileID: 1912807223}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &556578539 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6936153437279135806, guid: 7284cfaef172066498f7a89c4e2a6cd1, type: 3}
+  m_PrefabInstance: {fileID: 379740284}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &556578548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 556578539}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed29320021218ae429c07ab512d31cad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fileName: NPC/Julian/speech.txt
 --- !u!1 &556874199
 GameObject:
   m_ObjectHideFlags: 0
